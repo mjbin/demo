@@ -1,0 +1,124 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>date</title>
+</head>
+
+<body>
+    <div id="box1"></div>
+    <div id="box2"></div>
+</body>
+<script type="text/javascript">
+    var dateLib = function() {
+        this.renderHtml = function(year, month, day, obj) {
+            var currentMonthObj = this.currentMonthDays(year, month);
+            var firstDay = currentMonthObj.firstDay;
+            var allDays = currentMonthObj.allDays;
+
+            var _headHtml = "<tr>" +
+                "<th>日</th>" +
+                "<th>一</th>" +
+                "<th>二</th>" +
+                "<th>三</th>" +
+                "<th>四</th>" +
+                "<th>五</th>" +
+                "<th>六</th>" +
+                "</tr>";
+            var _bodyHtml = "";
+
+            // 一个月最多31天，所以一个月最多占6行表格
+            for (var i = 0; i < 6; i++) {
+                _bodyHtml += "<tr>" +
+                "<td></td>" +
+                "<td></td>" +
+                "<td></td>" +
+                "<td></td>" +
+                "<td></td>" +
+                "<td></td>" +
+                "<td></td>" +
+                "</tr>";
+            }
+            var id = obj.id || "defaultcalendar";
+            var contain = document.getElementById(obj.contain);
+            var tableString = "<table id='" + id + "'>" + _headHtml + _bodyHtml +"</table>";
+        
+            contain.innerHTML = tableString;
+            var _table = document.getElementById(id);
+            var _tds = _table.getElementsByTagName("td");
+            var _firstDay = new Date(year, month, 1);
+
+            var index = 1; //从一号开始遍历
+            for (var i = 0; i < _tds.length; i++) {
+                // if(i >= firstDay && index <= allDays){
+                //     if(index == day){
+                //         _tds[i].style.color = "red";
+                //     }
+                //     _tds[i].innerText = index;
+                //     index ++;
+                // }
+                var _thisDay = new Date(year, month, i + 1 - _firstDay.getDay());
+                var _thisDayStr = this.getDateStr(_thisDay);
+                _tds[i].innerText = _thisDay.getDate();
+                _tds[i].setAttribute('data', _thisDayStr);
+                if (_thisDayStr == this.getDateStr(new Date())) { // 当前天
+                    _tds[i].style.color = "red";
+                } else if (_thisDayStr.substr(0, 6) == this.getDateStr(_firstDay).substr(0, 6)) {
+                    _tds[i].style.color = "#000"; // 当前月
+                } else { // 其他月
+                    _tds[i].style.color = "#DDD";
+                }
+            }
+        }
+
+        this.getDateStr = function(date) {
+            var _year = date.getFullYear();
+            var _month = date.getMonth() + 1; // 月从0开始计数
+            var _d = date.getDate();
+
+            _month = (_month > 9) ? ("" + _month) : ("0" + _month);
+            _d = (_d > 9) ? ("" + _d) : ("0" + _d);
+            return _year + _month + _d;
+        }
+
+        this.currentMonthDays = function(year, month) {
+            var n1_Date = new Date(year, month, 1);
+            var n1_Day = n1_Date.getDay(); // 当月1号是周几
+            return {
+                "firstDay": n1_Day,
+                "allDays": this.monthArry(year)[month] // 获取当月总天数
+            };
+        }
+
+        this.init = function(obj) {
+            var nDate = new Date();
+            var nYear = nDate.getFullYear();
+            var nMonth = nDate.getMonth();
+            var nDay = nDate.getDate();
+
+            this.renderHtml(nYear, nMonth, nDay, obj);
+        }
+    };
+
+    // 判断闰年
+    dateLib.prototype.isLeapYear = function(year) {
+        return (year % 4 == 0) && (year % 100 != 0 || year % 400 == 0);
+    };
+
+    // 每月天数
+    dateLib.prototype.monthArry = function(year) {
+        var monthDayArry = [31, null, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+        monthDayArry[1] = this.isLeapYear(year) ? 29 : 28
+        return monthDayArry;
+    }
+
+
+    // 实例化对象
+    var now = new dateLib();
+    now.init({"contain":"box1","id":"myCalendarTable1"});
+
+    // var now2 = new dateLib();
+    // now2.init({"contain":"box2","id":"myCalendarTable2"});
+</script>
+
+</html>
